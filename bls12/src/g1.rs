@@ -1,4 +1,4 @@
-use crate::bls12::Bls12Parameters;
+use crate::Bls12Parameters;
 use ark_ec::{
     short_weierstrass::{Affine, Projective},
     AffineRepr, CurveGroup,

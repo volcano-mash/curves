@@ -1,4 +1,4 @@
-use crate::bls12::{Bls12, Bls12Parameters, TwistType};
+use bls12::{Bls12, Bls12Parameters, TwistType};
 
 use crate::{Fq, Fq12Config, Fq2Config, Fq6Config};
 

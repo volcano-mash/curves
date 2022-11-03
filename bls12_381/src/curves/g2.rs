@@ -7,11 +7,10 @@ use ark_ec::{
 };
 use ark_ff::{Field, MontFp, Zero};
 use ark_serialize::{Compress, SerializationError};
+use bls12::Bls12Parameters;
 
 use super::util::{serialize_fq, EncodingFlags, G2_SERIALIZED_SIZE};
 use crate::{
-    bls12,
-    bls12::Bls12Parameters,
     util::{read_g2_compressed, read_g2_uncompressed},
     *,
 };

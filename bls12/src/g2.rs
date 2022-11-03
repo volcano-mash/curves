@@ -1,4 +1,4 @@
-use crate::bls12::{Bls12Parameters, TwistType};
+use crate::{Bls12Parameters, TwistType};
 use ark_ec::{
     models::short_weierstrass::SWCurveConfig,
     short_weierstrass::{Affine, Projective},
