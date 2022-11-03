@@ -31,3 +31,5 @@ mod fields;
 #[cfg(feature = "curve")]
 pub use curves::*;
 pub use fields::*;
+
+mod bls12;

@@ -1,8 +1,6 @@
 use ark_std::ops::Neg;
 
 use ark_ec::{
-    bls12,
-    bls12::Bls12Parameters,
     models::CurveConfig,
     short_weierstrass::{Affine, Projective, SWCurveConfig},
     AffineRepr, CurveGroup, Group,
@@ -12,6 +10,8 @@ use ark_serialize::{Compress, SerializationError};
 
 use super::util::{serialize_fq, EncodingFlags, G2_SERIALIZED_SIZE};
 use crate::{
+    bls12,
+    bls12::Bls12Parameters,
     util::{read_g2_compressed, read_g2_uncompressed},
     *,
 };

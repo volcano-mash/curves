@@ -1,7 +1,5 @@
 use crate::*;
 use ark_ec::{
-    bls12,
-    bls12::Bls12Parameters,
     models::CurveConfig,
     short_weierstrass::{Affine, SWCurveConfig},
     AffineRepr, Group,
@@ -10,8 +8,12 @@ use ark_ff::{Field, MontFp, PrimeField, Zero};
 use ark_serialize::{Compress, SerializationError};
 use ark_std::{ops::Neg, One};
 
-use crate::util::{
-    read_g1_compressed, read_g1_uncompressed, serialize_fq, EncodingFlags, G1_SERIALIZED_SIZE,
+use crate::{
+    bls12,
+    bls12::Bls12Parameters,
+    util::{
+        read_g1_compressed, read_g1_uncompressed, serialize_fq, EncodingFlags, G1_SERIALIZED_SIZE,
+    },
 };
 
 pub type G1Affine = bls12::G1Affine<crate::Parameters>;
