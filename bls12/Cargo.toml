@@ -27,6 +27,6 @@ itertools = { version = "0.10", default-features = false }
 sp-io = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate" }
 
 [features]
-default = ["std"]
+default = [ ]
 std = [ "ark-std/std", "ark-ff/std", "ark-serialize/std", "sp-io/std" ]
 parallel = [ "std", "rayon", "ark-std/parallel" ]
