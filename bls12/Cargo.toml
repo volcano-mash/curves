@@ -23,8 +23,9 @@ num-traits = { version = "0.2", default-features = false }
 rayon = { version = "1", optional = true }
 zeroize = { version = "1", default-features = false, features = ["zeroize_derive"] }
 itertools = { version = "0.10", default-features = false }
+sp-io = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate" }
 
 [features]
-default = []
-std = [ "ark-std/std", "ark-ff/std", "ark-serialize/std" ]
+default = ["std"]
+std = [ "ark-std/std", "ark-ff/std", "ark-serialize/std", "sp-io/std" ]
 parallel = [ "std", "rayon", "ark-std/parallel" ]
