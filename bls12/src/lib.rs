@@ -15,8 +15,9 @@ use ark_ff::{
     BitIteratorBE, CyclotomicMultSubgroup, Field, PrimeField,
 };
 use ark_serialize::{CanonicalDeserialize, CanonicalSerialize, Compress};
-use ark_std::{cfg_chunks_mut, marker::PhantomData, vec::Vec};
+use ark_std::{cfg_chunks_mut, marker::PhantomData, vec, vec::Vec};
 use derivative::Derivative;
+use itertools::Itertools;
 use num_traits::{One, Zero};
 use sp_io::crypto::bls12_381_multi_miller_loop;
 
@@ -61,37 +62,6 @@ pub use self::{
 #[derivative(Copy, Clone, PartialEq, Eq, Debug, Hash)]
 pub struct Bls12<P: Bls12Parameters>(PhantomData<fn() -> P>);
 
-impl<P: Bls12Parameters> Bls12<P> {
-    // Evaluate the line function at point p.
-    fn ell(f: &mut Fp12<P::Fp12Config>, coeffs: &g2::EllCoeff<P>, p: &G1Affine<P>) {
-        let mut c0 = coeffs.0;
-        let mut c1 = coeffs.1;
-        let mut c2 = coeffs.2;
-        let (px, py) = p.xy().unwrap();
-
-        match P::TWIST_TYPE {
-            TwistType::M => {
-                c2.mul_assign_by_fp(py);
-                c1.mul_assign_by_fp(px);
-                f.mul_by_014(&c0, &c1, &c2);
-            },
-            TwistType::D => {
-                c0.mul_assign_by_fp(py);
-                c1.mul_assign_by_fp(px);
-                f.mul_by_034(&c0, &c1, &c2);
-            },
-        }
-    }
-
-    // Exponentiates `f` by `Self::X`, and stores the result in `result`.
-    fn exp_by_x(f: &Fp12<P::Fp12Config>, result: &mut Fp12<P::Fp12Config>) {
-        *result = f.cyclotomic_exp(P::X);
-        if P::X_IS_NEGATIVE {
-            result.cyclotomic_inverse_in_place();
-        }
-    }
-}
-
 impl<P: Bls12Parameters> Pairing for Bls12<P> {
     type BaseField = <P::G1Parameters as CurveConfig>::BaseField;
     type ScalarField = <P::G1Parameters as CurveConfig>::ScalarField;
@@ -107,25 +77,26 @@ impl<P: Bls12Parameters> Pairing for Bls12<P> {
         a: impl IntoIterator<Item = impl Into<Self::G1Prepared>>,
         b: impl IntoIterator<Item = impl Into<Self::G2Prepared>>,
     ) -> MillerLoopOutput<Self> {
-        use itertools::Itertools;
-
-        let mut a_vec = Vec::new();
-        let mut b_vec = Vec::new();
-
-        a.into_iter()
-            .map(|left| left.into())
-            .zip_eq(b.into_iter().map(|right| right.into()))
-            .for_each(|(left, right)| {
-                let mut serialized_a = Vec::new();
-                let mut serialized_b = Vec::new();
-                left.serialize_with_mode(&mut serialized_a, Compress::Yes)
+        let a_vec = a
+            .into_iter()
+            .map(|elem| {
+                let elem: Self::G1Prepared = elem.into();
+                let mut serialized = vec![0u8; elem.serialized_size(Compress::Yes)];
+                elem.serialize_with_mode(&mut serialized, Compress::Yes)
                     .unwrap();
-                right
-                    .serialize_with_mode(&mut serialized_b, Compress::Yes)
+                serialized
+            })
+            .collect();
+        let b_vec = b
+            .into_iter()
+            .map(|elem| {
+                let elem: Self::G2Prepared = elem.into();
+                let mut serialized = vec![0u8; elem.serialized_size(Compress::Yes)];
+                elem.serialize_with_mode(&mut serialized, Compress::Yes)
                     .unwrap();
-                a_vec.push(serialized_a);
-                b_vec.push(serialized_b);
-            });
+                serialized
+            })
+            .collect();
 
         let res = bls12_381_multi_miller_loop(a_vec, b_vec);
         let f: Self::TargetField =
